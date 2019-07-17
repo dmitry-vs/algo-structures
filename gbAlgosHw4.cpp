@@ -8,6 +8,70 @@
 #define OBSTACLES_X {1, 2, 3}
 #define OBSTACLES_Y {1, 3, 1}
 
+#define X 8
+#define Y 8
+#define HORSES 50
+int board[Y][X];
+
+void clearBoard() {
+	for (int i = 0; i < Y; i++)
+		for (int j = 0; j < X; j++)
+			board[i][j] = 0;
+}
+
+void printBoard() {
+	for (int i = 0; i < Y; i++) {
+		for (int j = 0; j < X; j++)
+			printf("%2d ", board[i][j]);
+		printf("\n");
+	}
+}
+
+bool checkHorse(int x, int y) {
+	if (x == 0 && y == 0)
+		return true;
+
+	int checkX[] = { x - 2, x - 2, x - 1, x - 1, x + 1, x + 1, x + 2, x + 2 };
+	int checkY[] = { y - 1, y + 1, y - 2, y + 2, y - 2, y + 2, y + 1, y - 1 };
+	
+	for (int k = 0; k < sizeof(checkX) / sizeof(int); k++) {
+		if (checkX[k] >= 0 && checkX[k] < X && checkY[k] >= 0 && checkY[k] < Y)
+			if (board[checkX[k]][checkY[k]] == (board[x][y] - 1))
+				return true;
+	}
+
+	return false;
+}
+
+bool checkBoard() {
+	for (int i = 0; i < Y; i++)
+		for (int j = 0; j < X; j++)
+			if (board[i][j] != 0)
+				if (checkHorse(i, j) == false)
+					return false;
+	return true;
+}
+
+int horses(int n) {
+	if (checkBoard() == false)
+		return 0;
+	if (n == (HORSES + 1))
+		return 1;
+
+	for (int row = 0; row < Y; row++) {
+		for (int col = 0; col < X; col++) {
+			if (board[row][col] == 0) {
+				board[row][col] = n;
+				if (horses(n + 1))
+					return 1;
+				board[row][col] = 0;
+			}
+		}
+	}
+
+	return 0;
+}
+
 void fillArray(int* buf, int len) {
 	for (size_t i = 0; i < len; i++)
 		buf[i] = rand() % 100;
@@ -105,14 +169,14 @@ int main() {
 	int testArr[testArrLen];
 	fillArray(testArr, testArrLen);
 	int tempArr[testArrLen];
-	
+
 	printf("Original array:\n");
 	printArray(testArr, testArrLen);
 	printf("Sorted array:\n");
 	memcpy(tempArr, testArr, testArrLen * sizeof(int));
 	bubbleSort(tempArr, testArrLen);
 	printArray(tempArr, testArrLen);
-	
+
 	printf("\nBinary search:\n");
 	for (size_t i = 0; i < testArrLen; i++)
 		printf("Index of %d: %d\n", tempArr[i], binarySearch(tempArr, testArrLen, tempArr[i]));
@@ -135,8 +199,12 @@ int main() {
 	for (size_t i = 0; i < fieldSize; i++) {
 		for (size_t j = 0; j < fieldSize; j++)
 			printf("%5d ", routesObstacles(i, j));
-		printf("\n");
+		printf("\n\n");
 	}
 
+	clearBoard();
+	horses(1);
+	printBoard();
+	
 	return 0;
 }
